@@ -1,6 +1,7 @@
-import { Star, Plane, Shield, Clock, Award, Trophy } from 'lucide-react'
+import { Star, Plane, Shield, Trophy, ArrowLeft } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import Link from 'next/link'
 
 interface Airline {
   id: string
@@ -66,7 +67,7 @@ function StarRating({ rating }: { rating: number }) {
       {[1, 2, 3, 4, 5].map((star) => (
         <Star
           key={star}
-          className={`h-3.5 w-3.5 ${
+          className={`h-4 w-4 ${
             star <= Math.floor(rating)
               ? 'fill-amber-400 text-amber-400'
               : star - 0.5 <= rating
@@ -75,7 +76,7 @@ function StarRating({ rating }: { rating: number }) {
           }`}
         />
       ))}
-      <span className="ml-1 text-sm font-semibold text-foreground">{rating}</span>
+      <span className="ml-1 text-base font-semibold text-foreground">{rating}</span>
     </div>
   )
 }
@@ -88,7 +89,7 @@ function RankBadge({ rank }: { rank: number }) {
   }
   return (
     <div
-      className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${colors[rank as keyof typeof colors] || 'bg-muted text-muted-foreground'}`}
+      className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${colors[rank as keyof typeof colors] || 'bg-muted text-muted-foreground'}`}
     >
       {rank}
     </div>
@@ -97,7 +98,7 @@ function RankBadge({ rank }: { rank: number }) {
 
 function AirlineLogo({ code }: { code: string }) {
   return (
-    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary font-bold text-sm">
+    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-base">
       {code}
     </div>
   )
@@ -105,72 +106,90 @@ function AirlineLogo({ code }: { code: string }) {
 
 export function TopAirlines() {
   return (
-    <div className="h-full p-4 lg:p-6">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100">
-            <Trophy className="h-5 w-5 text-amber-600" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-foreground">Top Aerolineas</h2>
-            <p className="text-xs text-muted-foreground">Ranking mundial 2024</p>
+      <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container max-w-4xl mx-auto px-4 py-4">
+          <div className="flex items-center gap-4">
+            <Link
+              href="/"
+              className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-muted transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Link>
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100">
+                <Trophy className="h-6 w-6 text-amber-600" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-foreground">Top Aerolineas</h1>
+                <p className="text-sm text-muted-foreground">Ranking mundial 2024</p>
+              </div>
+            </div>
           </div>
         </div>
-        <p className="text-sm text-muted-foreground">
-          Las aerolineas mejor valoradas segun miles de opiniones de viajeros.
+      </header>
+
+      {/* Content */}
+      <main className="container max-w-4xl mx-auto px-4 py-6">
+        <p className="text-muted-foreground mb-6">
+          Las aerolineas mejor valoradas segun miles de opiniones de viajeros reales.
         </p>
-      </div>
 
-      {/* Airlines List */}
-      <div className="space-y-3">
-        {topAirlines.map((airline, index) => (
-          <Card
-            key={airline.id}
-            className={`transition-all hover:shadow-md hover:border-primary/30 cursor-pointer ${
-              index === 0 ? 'border-amber-300 bg-amber-50/50' : ''
-            }`}
-          >
-            <CardContent className="p-3">
-              <div className="flex items-center gap-3">
-                <RankBadge rank={index + 1} />
-                <AirlineLogo code={airline.logo} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <h3 className="font-semibold text-foreground text-sm truncate">{airline.name}</h3>
-                  </div>
-                  <StarRating rating={airline.rating} />
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {airline.reviews.toLocaleString()} opiniones
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-3 pt-3 border-t">
-                <Badge variant="secondary" className="mb-2 text-xs">
-                  {airline.category}
-                </Badge>
-                <div className="grid grid-cols-1 gap-1">
-                  {airline.highlights.slice(0, 2).map((highlight, i) => (
-                    <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
-                      {i === 0 && <Shield className="h-3 w-3 text-primary flex-shrink-0" />}
-                      {i === 1 && <Plane className="h-3 w-3 text-primary flex-shrink-0" />}
-                      <span className="truncate">{highlight}</span>
+        {/* Airlines Grid */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+          {topAirlines.map((airline, index) => (
+            <Card
+              key={airline.id}
+              className={`transition-all hover:shadow-lg hover:border-primary/30 cursor-pointer ${
+                index === 0 ? 'border-amber-300 bg-amber-50/30 sm:col-span-2 lg:col-span-1' : ''
+              }`}
+            >
+              <CardContent className="p-4 sm:p-5">
+                <div className="flex items-start gap-4">
+                  <RankBadge rank={index + 1} />
+                  <AirlineLogo code={airline.logo} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <h2 className="font-semibold text-foreground text-lg">{airline.name}</h2>
+                      <Badge variant="secondary" className="text-xs">
+                        {airline.category}
+                      </Badge>
                     </div>
-                  ))}
+                    <StarRating rating={airline.rating} />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {airline.reviews.toLocaleString()} opiniones verificadas
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
 
-      {/* Footer */}
-      <div className="mt-6 text-center">
-        <p className="text-xs text-muted-foreground">
-          Datos actualizados semanalmente
-        </p>
-      </div>
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">
+                    Puntos destacados
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {airline.highlights.map((highlight, i) => (
+                      <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                        {i === 0 && <Shield className="h-4 w-4 text-primary flex-shrink-0" />}
+                        {i === 1 && <Plane className="h-4 w-4 text-primary flex-shrink-0" />}
+                        {i === 2 && <Star className="h-4 w-4 text-primary flex-shrink-0" />}
+                        <span>{highlight}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div className="mt-8 text-center border-t pt-6">
+          <p className="text-sm text-muted-foreground">
+            Datos actualizados semanalmente basados en opiniones de viajeros verificados.
+          </p>
+        </div>
+      </main>
     </div>
   )
 }
