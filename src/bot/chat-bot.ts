@@ -44,25 +44,42 @@ async function handleTravelQuery(thread: any, message: IncomingMessage, eventNam
   await thread.post(result.fullStream);
 }
 
-export const bot = new Chat({
-  userName: process.env.CHAT_BOT_USER_NAME ?? "euro-travel-assistant",
-  adapters: {
-    // Slack adapter auto-detects credentials from environment variables.
-    slack: createSlackAdapter(),
-  },
-  // Dev state adapter:
-  state: createMemoryState(),
-  // Production swap:
-  // state: createRedisState() // from "@chat-adapter/state-redis"
-  dedupeTtlMs: 10 * 60 * 1000,
-  streamingUpdateIntervalMs: 250,
-});
+// Lazy initialization - only create bot when credentials are available
+let _bot: Chat | null = null;
 
-bot.onNewMention(async (thread: any, message: IncomingMessage) => {
-  await thread.subscribe();
-  await handleTravelQuery(thread, message, "new_mention");
-});
+export function getBot(): Chat {
+  if (_bot) return _bot;
 
-bot.onSubscribedMessage(async (thread: any, message: IncomingMessage) => {
-  await handleTravelQuery(thread, message, "subscribed_message");
-});
+  // This will throw if credentials are missing - caught at runtime, not build time
+  _bot = new Chat({
+    userName: process.env.CHAT_BOT_USER_NAME ?? "euro-travel-assistant",
+    adapters: {
+      // Slack adapter auto-detects credentials from environment variables.
+      slack: createSlackAdapter(),
+    },
+    // Dev state adapter:
+    state: createMemoryState(),
+    // Production swap:
+    // state: createRedisState() // from "@chat-adapter/state-redis"
+    dedupeTtlMs: 10 * 60 * 1000,
+    streamingUpdateIntervalMs: 250,
+  });
+
+  _bot.onNewMention(async (thread: any, message: IncomingMessage) => {
+    await thread.subscribe();
+    await handleTravelQuery(thread, message, "new_mention");
+  });
+
+  _bot.onSubscribedMessage(async (thread: any, message: IncomingMessage) => {
+    await handleTravelQuery(thread, message, "subscribed_message");
+  });
+
+  return _bot;
+}
+
+// For backwards compatibility - but will throw if called without credentials
+export const bot = {
+  get webhooks() {
+    return getBot().webhooks;
+  }
+};
