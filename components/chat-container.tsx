@@ -5,9 +5,12 @@ import type { Message } from '@/lib/types'
 import { processUserMessage } from '@/lib/mock-data'
 import { ChatMessage } from './chat-message'
 import { ChatInput } from './chat-input'
-import { Plane, Loader2, Trophy, Search, MessageSquare, Map, Luggage, GitCompare, Menu, X, Bell, BookOpen } from 'lucide-react'
+import { Plane, Loader2, Trophy, Search, MessageSquare, Map, Luggage, GitCompare, Menu, X, Bell, BookOpen, Radar, Wrench, Building2, FileCheck, ClipboardList, User, LayoutDashboard } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { ThemeToggle } from '@/components/theme-toggle'
+import { AuthModal } from '@/components/auth-modal'
+import { useUser } from '@/lib/user-context'
 
 const welcomeMessage: Message = {
   id: 'welcome',
@@ -20,9 +23,14 @@ const navigationLinks = [
   { href: '/ranking', icon: Trophy, label: 'Ranking' },
   { href: '/vuelos', icon: Search, label: 'Vuelos' },
   { href: '/comparador', icon: GitCompare, label: 'Comparador' },
-  { href: '/resenas', icon: MessageSquare, label: 'Reseñas' },
+  { href: '/seguimiento', icon: Radar, label: 'Rastrear' },
   { href: '/mapa', icon: Map, label: 'Mapa' },
+  { href: '/aeropuertos', icon: Building2, label: 'Aeropuertos' },
+  { href: '/requisitos', icon: FileCheck, label: 'Requisitos' },
+  { href: '/checklist', icon: ClipboardList, label: 'Checklist' },
+  { href: '/herramientas', icon: Wrench, label: 'Herramientas' },
   { href: '/equipaje', icon: Luggage, label: 'Equipaje' },
+  { href: '/resenas', icon: MessageSquare, label: 'Resenas' },
   { href: '/blog', icon: BookOpen, label: 'Blog' },
   { href: '/alertas', icon: Bell, label: 'Alertas' },
 ]
@@ -32,6 +40,7 @@ export function ChatContainer() {
   const [isLoading, setIsLoading] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const { user, isLoggedIn, logout } = useUser()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -101,9 +110,22 @@ export function ChatContainer() {
           >
             {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
+          <ThemeToggle />
+          {isLoggedIn ? (
+            <div className="flex items-center gap-2">
+              <Link href="/dashboard">
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <LayoutDashboard className="h-4 w-4" />
+                  <span className="hidden sm:inline">{user?.name}</span>
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <AuthModal />
+          )}
           <div className="flex items-center gap-2">
             <span className="flex h-2 w-2 rounded-full bg-green-500" />
-            <span className="text-xs text-muted-foreground">En línea</span>
+            <span className="text-xs text-muted-foreground">En linea</span>
           </div>
         </div>
       </header>
