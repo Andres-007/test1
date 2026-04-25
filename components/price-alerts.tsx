@@ -27,7 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { airports } from '@/lib/flights-data'
+import { popularAirports as airports } from '@/lib/flights-data'
 
 interface PriceAlert {
   id: string
