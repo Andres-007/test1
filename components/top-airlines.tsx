@@ -1,4 +1,4 @@
-import { Star, Plane, Shield, Clock, Award } from 'lucide-react'
+import { Star, Plane, Shield, Clock, Award, Trophy } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 
@@ -66,7 +66,7 @@ function StarRating({ rating }: { rating: number }) {
       {[1, 2, 3, 4, 5].map((star) => (
         <Star
           key={star}
-          className={`h-4 w-4 ${
+          className={`h-3.5 w-3.5 ${
             star <= Math.floor(rating)
               ? 'fill-amber-400 text-amber-400'
               : star - 0.5 <= rating
@@ -80,9 +80,24 @@ function StarRating({ rating }: { rating: number }) {
   )
 }
 
+function RankBadge({ rank }: { rank: number }) {
+  const colors = {
+    1: 'bg-amber-400 text-amber-900',
+    2: 'bg-slate-300 text-slate-700',
+    3: 'bg-orange-400 text-orange-900',
+  }
+  return (
+    <div
+      className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${colors[rank as keyof typeof colors] || 'bg-muted text-muted-foreground'}`}
+    >
+      {rank}
+    </div>
+  )
+}
+
 function AirlineLogo({ code }: { code: string }) {
   return (
-    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold text-lg">
+    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary font-bold text-sm">
       {code}
     </div>
   )
@@ -90,69 +105,72 @@ function AirlineLogo({ code }: { code: string }) {
 
 export function TopAirlines() {
   return (
-    <section className="py-6">
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/20">
-            <Award className="h-5 w-5 text-accent" />
+    <div className="h-full p-4 lg:p-6">
+      {/* Header */}
+      <div className="mb-6">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100">
+            <Trophy className="h-5 w-5 text-amber-600" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-foreground">Aerolineas Mejor Valoradas</h2>
-            <p className="text-sm text-muted-foreground">Basado en miles de opiniones de viajeros</p>
+            <h2 className="text-lg font-bold text-foreground">Top Aerolineas</h2>
+            <p className="text-xs text-muted-foreground">Ranking mundial 2024</p>
           </div>
         </div>
+        <p className="text-sm text-muted-foreground">
+          Las aerolineas mejor valoradas segun miles de opiniones de viajeros.
+        </p>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin">
+      {/* Airlines List */}
+      <div className="space-y-3">
         {topAirlines.map((airline, index) => (
           <Card
             key={airline.id}
-            className="min-w-[280px] flex-shrink-0 transition-all hover:shadow-md hover:border-primary/30 cursor-pointer"
+            className={`transition-all hover:shadow-md hover:border-primary/30 cursor-pointer ${
+              index === 0 ? 'border-amber-300 bg-amber-50/50' : ''
+            }`}
           >
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <AirlineLogo code={airline.logo} />
-                    {index === 0 && (
-                      <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-amber-400 text-[10px] font-bold text-amber-900">
-                        1
-                      </div>
-                    )}
+            <CardContent className="p-3">
+              <div className="flex items-center gap-3">
+                <RankBadge rank={index + 1} />
+                <AirlineLogo code={airline.logo} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <h3 className="font-semibold text-foreground text-sm truncate">{airline.name}</h3>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground text-sm">{airline.name}</h3>
-                    <p className="text-xs text-muted-foreground">{airline.reviews.toLocaleString()} opiniones</p>
-                  </div>
+                  <StarRating rating={airline.rating} />
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {airline.reviews.toLocaleString()} opiniones
+                  </p>
                 </div>
               </div>
 
-              <div className="mb-3">
-                <StarRating rating={airline.rating} />
-              </div>
-
-              <Badge variant="secondary" className="mb-3 text-xs">
-                {airline.category}
-              </Badge>
-
-              <div className="space-y-1.5">
-                {airline.highlights.map((highlight, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
-                    {i === 0 && <Shield className="h-3 w-3 text-primary" />}
-                    {i === 1 && <Plane className="h-3 w-3 text-primary" />}
-                    {i === 2 && <Clock className="h-3 w-3 text-primary" />}
-                    <span>{highlight}</span>
-                  </div>
-                ))}
+              <div className="mt-3 pt-3 border-t">
+                <Badge variant="secondary" className="mb-2 text-xs">
+                  {airline.category}
+                </Badge>
+                <div className="grid grid-cols-1 gap-1">
+                  {airline.highlights.slice(0, 2).map((highlight, i) => (
+                    <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
+                      {i === 0 && <Shield className="h-3 w-3 text-primary flex-shrink-0" />}
+                      {i === 1 && <Plane className="h-3 w-3 text-primary flex-shrink-0" />}
+                      <span className="truncate">{highlight}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      <p className="mt-4 text-center text-xs text-muted-foreground">
-        Desliza para ver mas aerolineas destacadas
-      </p>
-    </section>
+      {/* Footer */}
+      <div className="mt-6 text-center">
+        <p className="text-xs text-muted-foreground">
+          Datos actualizados semanalmente
+        </p>
+      </div>
+    </div>
   )
 }
