@@ -13,7 +13,7 @@ interface FlightCardProps {
 
 export function FlightCard({ flight, index }: FlightCardProps) {
   return (
-    <Card 
+    <Card
       className="overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4"
       style={{ animationDelay: `${index * 100}ms` }}
     >
@@ -46,7 +46,7 @@ export function FlightCard({ flight, index }: FlightCardProps) {
               <p className="text-2xl font-bold text-foreground">{flight.departureTime}</p>
               <p className="text-sm font-medium text-muted-foreground">{flight.originCode}</p>
             </div>
-            
+
             <div className="flex flex-1 flex-col items-center gap-1">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Clock className="h-3 w-3" />

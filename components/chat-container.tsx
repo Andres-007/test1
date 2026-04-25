@@ -5,7 +5,9 @@ import type { Message } from '@/lib/types'
 import { processUserMessage } from '@/lib/mock-data'
 import { ChatMessage } from './chat-message'
 import { ChatInput } from './chat-input'
-import { Plane, Loader2 } from 'lucide-react'
+import { Plane, Loader2, Trophy, Search, MessageSquare, Map, Luggage, GitCompare, Menu, X } from 'lucide-react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 const welcomeMessage: Message = {
   id: 'welcome',
@@ -64,7 +66,7 @@ export function ChatContainer() {
             <Plane className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-foreground">SkyCompare</h1>
+            <h1 className="text-lg font-bold text-foreground">Vola SV</h1>
             <p className="text-xs text-muted-foreground">Comparador inteligente de aerolíneas</p>
           </div>
         </div>
