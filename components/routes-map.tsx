@@ -1,22 +1,22 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import {
-  ComposableMap,
-  Geographies,
-  Geography,
-  Line,
-  Marker,
-} from 'react-simple-maps'
 import { ArrowLeft, Plane, MapPin, Filter } from 'lucide-react'
 import Link from 'next/link'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  Map,
+  MapMarker,
+  MarkerContent,
+  MarkerTooltip,
+  MapArc,
+  type MapArcDatum,
+  type MapArcEvent,
+} from '@/src/components/ui/map'
 import { airlineRoutes, getAllHubCities, type AirlineRoute } from '@/lib/routes-data'
 import { airlinesData } from '@/lib/airlines-data'
-
-const geoUrl = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'
 
 const airlineColors: Record<string, string> = {
   'singapore-airlines': '#F5A623',
@@ -39,14 +39,40 @@ function AirlineLogo({ code }: { code: string }) {
   )
 }
 
+interface RouteArcDatum extends MapArcDatum {
+  airlineId: string
+  airlineName: string
+  airlineCode: string
+  originCity: string
+  destinationCity: string
+  frequency: string
+  aircraft: string
+}
+
 export function RoutesMap() {
   const [selectedAirline, setSelectedAirline] = useState<string | null>(null)
-  const [hoveredRoute, setHoveredRoute] = useState<AirlineRoute | null>(null)
+  const [hoveredRoute, setHoveredRoute] = useState<RouteArcDatum | null>(null)
 
   const filteredRoutes = useMemo(() => {
     if (!selectedAirline) return airlineRoutes
     return airlineRoutes.filter((route) => route.airlineId === selectedAirline)
   }, [selectedAirline])
+
+  // Convert routes to MapArc data format
+  const arcData: RouteArcDatum[] = useMemo(() => {
+    return filteredRoutes.map((route) => ({
+      id: route.id,
+      from: route.origin.coordinates,
+      to: route.destination.coordinates,
+      airlineId: route.airlineId,
+      airlineName: route.airlineName,
+      airlineCode: route.airlineCode,
+      originCity: route.origin.city,
+      destinationCity: route.destination.city,
+      frequency: route.frequency,
+      aircraft: route.aircraft,
+    }))
+  }, [filteredRoutes])
 
   const hubCities = useMemo(() => {
     if (!selectedAirline) return getAllHubCities()
@@ -75,6 +101,15 @@ export function RoutesMap() {
     const airlineIds = new Set(airlineRoutes.map((r) => r.airlineId))
     return airlinesData.filter((a) => airlineIds.has(a.id))
   }, [])
+
+  const handleArcHover = (e: MapArcEvent<RouteArcDatum> | null) => {
+    setHoveredRoute(e?.arc ?? null)
+  }
+
+  // Determine the arc color based on selection
+  const arcColor = selectedAirline
+    ? airlineColors[selectedAirline] || '#6366F1'
+    : '#6366F1'
 
   return (
     <div className="min-h-screen bg-background">
@@ -140,87 +175,66 @@ export function RoutesMap() {
         {/* Map */}
         <Card className="overflow-hidden">
           <CardContent className="p-0">
-            <div className="relative aspect-[2/1] bg-slate-100">
-              <ComposableMap
-                projection="geoMercator"
-                projectionConfig={{
-                  scale: 120,
-                  center: [20, 20],
-                }}
-                style={{ width: '100%', height: '100%' }}
+            <div className="relative h-[500px] md:h-[600px]">
+              <Map
+                center={[20, 20]}
+                zoom={1.5}
+                className="w-full h-full"
               >
-                <Geographies geography={geoUrl}>
-                  {({ geographies }) =>
-                    geographies.map((geo) => (
-                      <Geography
-                        key={geo.rsmKey}
-                        geography={geo}
-                        fill="#E2E8F0"
-                        stroke="#CBD5E1"
-                        strokeWidth={0.5}
-                        style={{
-                          default: { outline: 'none' },
-                          hover: { outline: 'none', fill: '#CBD5E1' },
-                          pressed: { outline: 'none' },
-                        }}
-                      />
-                    ))
-                  }
-                </Geographies>
-
-                {/* Routes */}
-                {filteredRoutes.map((route) => (
-                  <Line
-                    key={route.id}
-                    from={route.origin.coordinates}
-                    to={route.destination.coordinates}
-                    stroke={airlineColors[route.airlineId] || '#6366F1'}
-                    strokeWidth={hoveredRoute?.id === route.id ? 3 : 1.5}
-                    strokeLinecap="round"
-                    style={{
-                      cursor: 'pointer',
-                      transition: 'stroke-width 0.2s',
-                    }}
-                    onMouseEnter={() => setHoveredRoute(route)}
-                    onMouseLeave={() => setHoveredRoute(null)}
-                  />
-                ))}
+                {/* Routes as arcs */}
+                <MapArc
+                  data={arcData}
+                  curvature={0.3}
+                  paint={{
+                    'line-color': arcColor,
+                    'line-width': 2,
+                    'line-opacity': 0.7,
+                  }}
+                  hoverPaint={{
+                    'line-width': 4,
+                    'line-opacity': 1,
+                  }}
+                  onHover={handleArcHover}
+                />
 
                 {/* Hub Markers */}
                 {hubCities.map((hub) => (
-                  <Marker key={hub.code} coordinates={hub.coordinates}>
-                    <circle
-                      r={4}
-                      fill={selectedAirline ? airlineColors[selectedAirline] || '#6366F1' : '#6366F1'}
-                      stroke="#fff"
-                      strokeWidth={1.5}
-                    />
-                    <text
-                      textAnchor="middle"
-                      y={-10}
-                      style={{
-                        fontSize: '8px',
-                        fontWeight: 600,
-                        fill: '#1E293B',
-                      }}
-                    >
-                      {hub.code}
-                    </text>
-                  </Marker>
+                  <MapMarker
+                    key={hub.code}
+                    longitude={hub.coordinates[0]}
+                    latitude={hub.coordinates[1]}
+                  >
+                    <MarkerContent>
+                      <div
+                        className="w-3 h-3 rounded-full border-2 border-white shadow-lg cursor-pointer"
+                        style={{
+                          backgroundColor: selectedAirline
+                            ? airlineColors[selectedAirline] || '#6366F1'
+                            : '#6366F1',
+                        }}
+                      />
+                    </MarkerContent>
+                    <MarkerTooltip>
+                      <div className="text-center">
+                        <p className="font-bold">{hub.code}</p>
+                        <p className="text-xs opacity-80">{hub.city}</p>
+                      </div>
+                    </MarkerTooltip>
+                  </MapMarker>
                 ))}
-              </ComposableMap>
+              </Map>
 
               {/* Route Info Tooltip */}
               {hoveredRoute && (
-                <div className="absolute bottom-4 left-4 bg-background/95 backdrop-blur border rounded-lg p-3 shadow-lg max-w-xs">
+                <div className="absolute bottom-4 left-4 bg-background/95 backdrop-blur border rounded-lg p-3 shadow-lg max-w-xs z-10">
                   <div className="flex items-center gap-2 mb-2">
                     <AirlineLogo code={hoveredRoute.airlineCode} />
                     <span className="font-medium text-sm">{hoveredRoute.airlineName}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
-                    <span className="font-medium">{hoveredRoute.origin.city}</span>
+                    <span className="font-medium">{hoveredRoute.originCity}</span>
                     <Plane className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">{hoveredRoute.destination.city}</span>
+                    <span className="font-medium">{hoveredRoute.destinationCity}</span>
                   </div>
                   <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                     <Badge variant="secondary">{hoveredRoute.frequency}</Badge>
@@ -247,8 +261,19 @@ export function RoutesMap() {
               {filteredRoutes.map((route) => (
                 <div
                   key={route.id}
-                  className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
-                  onMouseEnter={() => setHoveredRoute(route)}
+                  className="flex items-center gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer"
+                  onMouseEnter={() => setHoveredRoute({
+                    id: route.id,
+                    from: route.origin.coordinates,
+                    to: route.destination.coordinates,
+                    airlineId: route.airlineId,
+                    airlineName: route.airlineName,
+                    airlineCode: route.airlineCode,
+                    originCity: route.origin.city,
+                    destinationCity: route.destination.city,
+                    frequency: route.frequency,
+                    aircraft: route.aircraft,
+                  })}
                   onMouseLeave={() => setHoveredRoute(null)}
                 >
                   <div
