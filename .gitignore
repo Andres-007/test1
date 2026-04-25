@@ -1,9 +1,10 @@
+# Vercel
+.vercel
+
 # Dependencies
 node_modules/
 /.pnp
 .pnp.js
-package-lock.json
-pnpm-lock.yaml
 
 # Next.js
 /.next/
@@ -13,8 +14,7 @@ dist/
 
 # Environment variables
 .env
-.env.local
-.env.*.local
+.env*.local
 .env.development.local
 .env.test.local
 .env.production.local
@@ -25,7 +25,6 @@ dist/
 *.swp
 *.swo
 *~
-.DS_Store
 *.sublime-project
 *.sublime-workspace
 .vscode-insiders.json
@@ -41,9 +40,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 # Build output
-dist/
 build/
-out/
 
 # Testing
 coverage/
@@ -60,4 +57,3 @@ coverage/
 # Misc
 *.pem
 .cache/
-
