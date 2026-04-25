@@ -10,7 +10,7 @@ import { Plane, Loader2 } from 'lucide-react'
 const welcomeMessage: Message = {
   id: 'welcome',
   role: 'assistant',
-  content: `¡Bienvenido a **SkyCompare**! ✈️\n\nSoy tu asistente inteligente para encontrar los mejores vuelos. Puedo ayudarte a:\n\n• 🔍 Buscar vuelos entre cualquier ciudad\n• 💰 Comparar precios de diferentes aerolíneas\n• ⭐ Evaluar opciones según rating y escalas\n\n**¿A dónde quieres viajar hoy?**`,
+  content: `¡Bienvenido a **Vola SV **! ✈️\n\nSoy tu asistente inteligente para encontrar los mejores vuelos. Puedo ayudarte a:\n\n• 🔍 Buscar vuelos entre cualquier ciudad\n• 💰 Comparar precios de diferentes aerolíneas\n• ⭐ Evaluar opciones según rating y escalas\n\n**¿A dónde quieres viajar hoy?**`,
   timestamp: new Date(),
 }
 
