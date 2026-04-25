@@ -6,6 +6,7 @@ import { processUserMessage } from '@/lib/mock-data'
 import { ChatMessage } from './chat-message'
 import { ChatInput } from './chat-input'
 import { Plane, Loader2 } from 'lucide-react'
+import { TopAirlines } from './top-airlines'
 
 const welcomeMessage: Message = {
   id: 'welcome',
@@ -77,6 +78,9 @@ export function ChatContainer() {
       {/* Messages */}
       <main className="flex-1 overflow-y-auto p-4">
         <div className="mx-auto max-w-4xl space-y-6">
+          {/* Top Airlines Section */}
+          {messages.length === 1 && <TopAirlines />}
+
           {messages.map((message) => (
             <ChatMessage key={message.id} message={message} />
           ))}
