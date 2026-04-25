@@ -51,10 +51,6 @@ async function handleWebhookRequest(
   }
 
   const webRequest = await toWebRequest(req);
-  if (url.pathname === "/webhooks/discord") {
-    return bot.webhooks.discord(webRequest);
-  }
-
   if (url.pathname === "/webhooks/slack") {
     return bot.webhooks.slack(webRequest);
   }
@@ -63,7 +59,7 @@ async function handleWebhookRequest(
     {
       ok: false,
       error: "Not found",
-      endpoints: ["/webhooks/slack", "/webhooks/discord", "/health"],
+      endpoints: ["/webhooks/slack", "/health"],
     },
     { status: 404 },
   );
@@ -86,6 +82,6 @@ const server = createServer(async (req, res) => {
 server.listen(port, () => {
   // eslint-disable-next-line no-console
   console.log(
-    `Travel bot server listening on :${port} (Slack: /webhooks/slack, Discord: /webhooks/discord)`,
+    `Travel bot server listening on :${port} (Slack: /webhooks/slack)`,
   );
 });

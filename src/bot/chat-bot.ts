@@ -1,6 +1,5 @@
 import { streamText } from "ai";
 import { Chat } from "chat";
-import { createDiscordAdapter } from "@chat-adapter/discord";
 import { createSlackAdapter } from "@chat-adapter/slack";
 import { createMemoryState } from "@chat-adapter/state-memory";
 
@@ -48,9 +47,8 @@ async function handleTravelQuery(thread: any, message: IncomingMessage, eventNam
 export const bot = new Chat({
   userName: process.env.CHAT_BOT_USER_NAME ?? "euro-travel-assistant",
   adapters: {
-    // Adapters auto-detect credentials from environment variables.
+    // Slack adapter auto-detects credentials from environment variables.
     slack: createSlackAdapter(),
-    discord: createDiscordAdapter(),
   },
   // Dev state adapter:
   state: createMemoryState(),

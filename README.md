@@ -2,7 +2,7 @@
 
 Backend-only European travel assistant chatbot using:
 - Vercel Chat SDK (`chat`) for write-once bot logic
-- Slack + Discord adapters
+- Slack adapter
 - Vercel AI SDK (`streamText`) with tool calling
 - Vercel AI Gateway model routing
 
@@ -22,10 +22,6 @@ Copy `.env.example` to `.env.local` (or your environment config) and set:
   - `SLACK_BOT_TOKEN`
   - `SLACK_SIGNING_SECRET`
   - `SLACK_APP_TOKEN`
-- Discord:
-  - `DISCORD_TOKEN`
-  - `DISCORD_PUBLIC_KEY`
-  - `DISCORD_APPLICATION_ID`
 - AI Gateway:
   - `VERCEL_OIDC_TOKEN` (preferred via `vercel env pull .env.local`)
   - `AI_GATEWAY_API_KEY` (optional static fallback)
@@ -36,14 +32,12 @@ The adapter factories are initialized without hard-coded credentials so they can
 
 ### Next.js App Router route
 
-- Use `POST /api/chat?platform=slack` for Slack webhooks
-- Use `POST /api/chat?platform=discord` for Discord webhooks
+- Use `POST /api/chat` for Slack webhooks
 
 ### Standalone Node server
 
 Start your server entrypoint (`src/server.ts`) and use:
 - `POST /webhooks/slack`
-- `POST /webhooks/discord`
 - `GET /health`
 
 ## Notes
