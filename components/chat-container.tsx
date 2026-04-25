@@ -5,7 +5,7 @@ import type { Message } from '@/lib/types'
 import { processUserMessage } from '@/lib/mock-data'
 import { ChatMessage } from './chat-message'
 import { ChatInput } from './chat-input'
-import { Plane, Loader2, Trophy, Search, MessageSquare, Map, Luggage, GitCompare, Menu, X } from 'lucide-react'
+import { Plane, Loader2, Trophy, Search, MessageSquare, Map, Luggage, GitCompare, Menu, X, Bell, BookOpen } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
@@ -16,9 +16,21 @@ const welcomeMessage: Message = {
   timestamp: new Date(),
 }
 
+const navigationLinks = [
+  { href: '/ranking', icon: Trophy, label: 'Ranking' },
+  { href: '/vuelos', icon: Search, label: 'Vuelos' },
+  { href: '/comparador', icon: GitCompare, label: 'Comparador' },
+  { href: '/resenas', icon: MessageSquare, label: 'Reseñas' },
+  { href: '/mapa', icon: Map, label: 'Mapa' },
+  { href: '/equipaje', icon: Luggage, label: 'Equipaje' },
+  { href: '/blog', icon: BookOpen, label: 'Blog' },
+  { href: '/alertas', icon: Bell, label: 'Alertas' },
+]
+
 export function ChatContainer() {
   const [messages, setMessages] = useState<Message[]>([welcomeMessage])
   const [isLoading, setIsLoading] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -70,11 +82,47 @@ export function ChatContainer() {
             <p className="text-xs text-muted-foreground">Comparador inteligente de aerolíneas</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="flex h-2 w-2 rounded-full bg-green-500" />
-          <span className="text-xs text-muted-foreground">En línea</span>
+        <div className="flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-1">
+            {navigationLinks.map((link) => (
+              <Link key={link.href} href={link.href}>
+                <Button variant="ghost" size="sm" className="gap-1.5 text-xs">
+                  <link.icon className="h-4 w-4" />
+                  <span className="hidden lg:inline">{link.label}</span>
+                </Button>
+              </Link>
+            ))}
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+          <div className="flex items-center gap-2">
+            <span className="flex h-2 w-2 rounded-full bg-green-500" />
+            <span className="text-xs text-muted-foreground">En línea</span>
+          </div>
         </div>
       </header>
+
+      {/* Mobile Navigation Menu */}
+      {menuOpen && (
+        <nav className="md:hidden border-b bg-card px-4 py-2 shadow-sm animate-in slide-in-from-top">
+          <div className="grid grid-cols-2 gap-2">
+            {navigationLinks.map((link) => (
+              <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)}>
+                <Button variant="outline" size="sm" className="w-full gap-2 justify-start">
+                  <link.icon className="h-4 w-4" />
+                  {link.label}
+                </Button>
+              </Link>
+            ))}
+          </div>
+        </nav>
+      )}
 
       {/* Messages */}
       <main className="flex-1 overflow-y-auto p-4">
