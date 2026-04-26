@@ -30,7 +30,6 @@ import {
   CheckCircle2,
   LayoutDashboard,
 } from 'lucide-react'
-import { FeaturesCarousel } from '@/components/features-carousel'
 
 const features = [
   {
@@ -239,8 +238,32 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Features Carousel */}
-      <FeaturesCarousel />
+      {/* Features Grid */}
+      <section className="py-20">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="mb-12 text-center">
+            <h2 className="mb-4 text-3xl font-bold md:text-4xl">Todo lo que necesitas para viajar</h2>
+            <p className="mx-auto max-w-2xl text-muted-foreground">
+              Herramientas completas para planificar, comparar y disfrutar tus viajes
+            </p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {features.map((feature) => (
+              <Link key={feature.href} href={feature.href}>
+                <Card className="group h-full cursor-pointer transition-all hover:border-primary hover:shadow-lg">
+                  <CardContent className="p-6">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                      <feature.icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="mb-2 font-semibold">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Why FlyBot */}
       <section className="border-y bg-muted/30 py-20">
