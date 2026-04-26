@@ -78,26 +78,81 @@ export function ChatContainer() {
     setMessages((prev) => [...prev, userMessage])
     setIsLoading(true)
 
-    // Simular delay de respuesta
-    await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 500))
+    try {
+      // First process with mock data to get the response structure
+      const mockResult = processUserMessage(content, location)
+      
+      // If mock data found flights, try to get real flights
+      if (mockResult.flights && mockResult.flights.length > 0) {
+        const originCode = mockResult.flights[0].originCode
+        const destCode = mockResult.flights[0].destinationCode
+        
+        // Try to fetch real flights from API
+        try {
+          const response = await fetch('/api/flights/real', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              origin: originCode,
+              destination: destCode,
+              departureDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 week from now
+              adults: 1
+            })
+          })
+          
+          const data = await response.json()
+          
+          if (data.flights && data.flights.length > 0) {
+            // Real flights found!
+            const assistantMessage: Message = {
+              id: `assistant-${Date.now()}`,
+              role: 'assistant',
+              content: mockResult.response,
+              flights: data.flights,
+              flightsMeta: {
+                isReal: true,
+                source: data.source,
+                message: `Vuelos reales de ${data.source} - Puedes reservar directamente`
+              },
+              timestamp: new Date(),
+            }
+            setMessages((prev) => [...prev, assistantMessage])
+            setIsLoading(false)
+            return
+          }
+        } catch {
+          // Real flight API failed, continue with mock data
+          console.log('[v0] Real flight API unavailable, using mock data')
+        }
+      }
+      
+      // Fall back to mock data
+      const assistantMessage: Message = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: mockResult.response,
+        flights: mockResult.flights,
+        flightsMeta: mockResult.flights?.length ? {
+          isReal: false,
+          source: 'mock',
+          message: 'Vuelos de ejemplo - Configura las API keys para vuelos reales'
+        } : undefined,
+        timestamp: new Date(),
+      }
 
-    const result = processUserMessage(content, location)
-
-    const assistantMessage: Message = {
-      id: `assistant-${Date.now()}`,
-      role: 'assistant',
-      content: result.response,
-      flights: result.flights,
-      timestamp: new Date(),
+      setMessages((prev) => [...prev, assistantMessage])
+    } catch {
+      // Handle any errors
+      const errorMessage: Message = {
+        id: `error-${Date.now()}`,
+        role: 'assistant',
+        content: 'Lo siento, hubo un error al procesar tu solicitud. Por favor intenta de nuevo.',
+        timestamp: new Date(),
+      }
+      setMessages((prev) => [...prev, errorMessage])
     }
-
-    setMessages((prev) => [...prev, assistantMessage])
+    
     setIsLoading(false)
-
-    // If the response suggests requesting location, we can prompt the user
-    if (result.needsLocation && !location) {
-      // Location will be handled by the location button in the UI
-    }
   }
 
   return (
