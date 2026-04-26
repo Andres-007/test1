@@ -22,7 +22,9 @@ import {
   Users,
   Utensils,
   Briefcase,
+  Navigation,
 } from 'lucide-react'
+import { NearbyAirports } from './nearby-airports'
 
 interface Airport {
   code: string
@@ -203,6 +205,11 @@ export function AirportsGuide() {
       </header>
 
       <main className="container mx-auto px-4 py-8 max-w-6xl">
+        {/* Nearby Airports */}
+        <div className="mb-8">
+          <NearbyAirports />
+        </div>
+
         {/* Search */}
         <div className="relative mb-8">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
