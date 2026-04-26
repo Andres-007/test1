@@ -1,7 +1,7 @@
 import { ReviewsSection } from '@/components/reviews-section'
 
 export const metadata = {
-  title: 'Resenas de Aerolineas - SkyCompare',
+  title: 'Reseñas de Aerolineas - SkyCompare',
   description: 'Lee opiniones reales de viajeros sobre las principales aerolineas del mundo.',
 }
 

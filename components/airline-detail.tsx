@@ -42,13 +42,12 @@ function StarRating({ rating }: { rating: number }) {
       {[1, 2, 3, 4, 5].map((star) => (
         <Star
           key={star}
-          className={`h-5 w-5 ${
-            star <= Math.floor(rating)
+          className={`h-5 w-5 ${star <= Math.floor(rating)
               ? 'fill-amber-400 text-amber-400'
               : star - 0.5 <= rating
                 ? 'fill-amber-400/50 text-amber-400'
                 : 'fill-muted text-muted'
-          }`}
+            }`}
         />
       ))}
     </div>
@@ -192,7 +191,7 @@ export function AirlineDetail({ airline }: { airline: Airline }) {
             <TabsTrigger value="overview">General</TabsTrigger>
             <TabsTrigger value="services">Servicios</TabsTrigger>
             <TabsTrigger value="fleet">Flota</TabsTrigger>
-            <TabsTrigger value="reviews">Resenas</TabsTrigger>
+            <TabsTrigger value="reviews">Reseñas</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -375,7 +374,7 @@ export function AirlineDetail({ airline }: { airline: Airline }) {
                 <div className="flex items-center justify-between">
                   <p className="text-muted-foreground">{reviews.length} resenas de viajeros</p>
                   <Button variant="outline" asChild>
-                    <Link href="/resenas">Ver todas las resenas</Link>
+                    <Link href="/resenas">Ver todas las reseñas</Link>
                   </Button>
                 </div>
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -388,10 +387,10 @@ export function AirlineDetail({ airline }: { airline: Airline }) {
               <Card className="py-12">
                 <CardContent className="text-center text-muted-foreground">
                   <Star className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p className="text-lg font-medium">Sin resenas todavia</p>
+                  <p className="text-lg font-medium">Sin reseñas todavia</p>
                   <p className="text-sm mb-4">Se el primero en compartir tu experiencia</p>
                   <Button asChild>
-                    <Link href="/resenas">Escribir resena</Link>
+                    <Link href="/resenas">Escribir reseña</Link>
                   </Button>
                 </CardContent>
               </Card>
