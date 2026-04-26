@@ -94,7 +94,7 @@ const features = [
   },
   {
     icon: MessageSquare,
-    title: 'Resenas',
+    title: 'Reseñas',
     description: 'Lee y comparte experiencias de vuelo',
     href: '/resenas',
   },
@@ -109,7 +109,7 @@ const features = [
 const stats = [
   { value: '500+', label: 'Aerolineas' },
   { value: '10K+', label: 'Rutas' },
-  { value: '50K+', label: 'Resenas' },
+  { value: '50K+', label: 'Reseñas' },
   { value: '98%', label: 'Satisfaccion' },
 ]
 
@@ -202,7 +202,7 @@ export function LandingPage() {
               <span className="text-primary">FlyBot</span>
             </h1>
             <p className="mb-6 sm:mb-8 text-base sm:text-lg md:text-xl text-muted-foreground text-balance px-2">
-              Compara aerolineas, rastrea vuelos, calcula equipaje y mucho mas. 
+              Compara aerolineas, rastrea vuelos, calcula equipaje y mucho mas.
               Todo lo que necesitas para viajar inteligente en un solo lugar.
             </p>
             <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 sm:flex-row px-4 sm:px-0">
@@ -378,11 +378,10 @@ export function LandingPage() {
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
                         key={star}
-                        className={`h-4 w-4 ${
-                          star <= testimonial.rating
+                        className={`h-4 w-4 ${star <= testimonial.rating
                             ? 'fill-yellow-400 text-yellow-400'
                             : 'text-muted'
-                        }`}
+                          }`}
                       />
                     ))}
                   </div>
@@ -452,7 +451,7 @@ export function LandingPage() {
                 <li><Link href="/ranking" className="hover:text-foreground">Ranking</Link></li>
                 <li><Link href="/aeropuertos" className="hover:text-foreground">Aeropuertos</Link></li>
                 <li><Link href="/blog" className="hover:text-foreground">Blog</Link></li>
-                <li><Link href="/resenas" className="hover:text-foreground">Resenas</Link></li>
+                <li><Link href="/resenas" className="hover:text-foreground">Reseñas</Link></li>
               </ul>
             </div>
             <div>

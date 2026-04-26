@@ -105,7 +105,7 @@ const achievements: Achievement[] = [
   {
     id: 'reviewer-10',
     name: 'Critico Aficionado',
-    description: 'Escribe 10 resenas',
+    description: 'Escribe 10 reseñas',
     icon: Star,
     points: 200,
     progress: 3,
@@ -117,7 +117,7 @@ const achievements: Achievement[] = [
   {
     id: 'reviewer-50',
     name: 'Critico Experto',
-    description: 'Escribe 50 resenas detalladas',
+    description: 'Escribe 50 reseñas detalladas',
     icon: Award,
     points: 750,
     progress: 3,
@@ -339,7 +339,7 @@ export function AchievementsPage() {
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold">{stats.reviews}</div>
-                <div className="text-xs text-muted-foreground">Resenas</div>
+                <div className="text-xs text-muted-foreground">Reseñas</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold">{stats.trips}</div>
@@ -384,11 +384,10 @@ export function AchievementsPage() {
           {filteredAchievements.map(achievement => (
             <Card
               key={achievement.id}
-              className={`relative overflow-hidden transition-all ${
-                achievement.unlocked
-                  ? `border-2 ${rarityColors[achievement.rarity]}`
-                  : 'opacity-75'
-              }`}
+              className={`relative overflow-hidden transition-all ${achievement.unlocked
+                ? `border-2 ${rarityColors[achievement.rarity]}`
+                : 'opacity-75'
+                }`}
             >
               {achievement.unlocked && (
                 <div className="absolute right-2 top-2">
@@ -397,11 +396,10 @@ export function AchievementsPage() {
               )}
               <CardContent className="flex gap-4 p-4">
                 <div
-                  className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${
-                    achievement.unlocked
-                      ? 'bg-primary/10 text-primary'
-                      : 'bg-muted text-muted-foreground'
-                  }`}
+                  className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${achievement.unlocked
+                    ? 'bg-primary/10 text-primary'
+                    : 'bg-muted text-muted-foreground'
+                    }`}
                 >
                   {achievement.unlocked ? (
                     <achievement.icon className="h-7 w-7" />
