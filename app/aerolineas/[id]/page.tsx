@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 
   return {
-    title: `${airline.name} - Informacion y Resenas | SkyCompare`,
+    title: `${airline.name} - Informacion y Reseñas | SkyCompare`,
     description: `Descubre todo sobre ${airline.name}: rating ${airline.rating}/5, ${airline.reviews} opiniones, flota, destinos y servicios.`,
   }
 }

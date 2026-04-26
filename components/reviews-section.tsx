@@ -35,11 +35,10 @@ function StarRating({ rating, size = 'md' }: { rating: number; size?: 'sm' | 'md
       {[1, 2, 3, 4, 5].map((star) => (
         <Star
           key={star}
-          className={`${sizes[size]} ${
-            star <= rating
+          className={`${sizes[size]} ${star <= rating
               ? 'fill-amber-400 text-amber-400'
               : 'fill-muted text-muted'
-          }`}
+            }`}
         />
       ))}
     </div>
@@ -71,11 +70,10 @@ function InteractiveStarRating({
             className="p-0.5"
           >
             <Star
-              className={`h-5 w-5 transition-colors ${
-                star <= (hover || value)
+              className={`h-5 w-5 transition-colors ${star <= (hover || value)
                   ? 'fill-amber-400 text-amber-400'
                   : 'fill-muted text-muted hover:text-amber-300'
-              }`}
+                }`}
             />
           </button>
         ))}
@@ -385,7 +383,7 @@ export function ReviewsSection() {
                 <ArrowLeft className="h-5 w-5" />
               </Link>
               <div>
-                <h1 className="text-xl font-bold text-foreground">Resenas de Viajeros</h1>
+                <h1 className="text-xl font-bold text-foreground">Reñenas de Viajeros</h1>
                 <p className="text-sm text-muted-foreground">
                   {sampleReviews.length} opiniones verificadas
                 </p>
@@ -449,7 +447,7 @@ export function ReviewsSection() {
           <Card className="py-12">
             <CardContent className="text-center text-muted-foreground">
               <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p className="text-lg font-medium">No hay resenas</p>
+              <p className="text-lg font-medium">No hay reseñas</p>
               <p className="text-sm">Se el primero en compartir tu experiencia</p>
             </CardContent>
           </Card>

@@ -30,7 +30,7 @@ const navigationLinks = [
   { href: '/checklist', icon: ClipboardList, label: 'Checklist' },
   { href: '/herramientas', icon: Wrench, label: 'Herramientas' },
   { href: '/equipaje', icon: Luggage, label: 'Equipaje' },
-  { href: '/resenas', icon: MessageSquare, label: 'Resenas' },
+  { href: '/resenas', icon: MessageSquare, label: 'Reseñas' },
   { href: '/blog', icon: BookOpen, label: 'Blog' },
   { href: '/alertas', icon: Bell, label: 'Alertas' },
 ]
