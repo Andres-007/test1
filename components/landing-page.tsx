@@ -141,15 +141,15 @@ export function LandingPage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
+        <div className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-3 sm:px-4">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-              <Plane className="h-5 w-5 text-primary-foreground" />
+            <div className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg bg-primary">
+              <Plane className="h-4 w-4 sm:h-5 sm:w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold">FlyBot</span>
+            <span className="text-lg sm:text-xl font-bold">FlyBot</span>
           </Link>
 
-          <nav className="hidden items-center gap-6 md:flex">
+          <nav className="hidden items-center gap-4 lg:gap-6 md:flex">
             <Link href="/ranking" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Ranking
             </Link>
@@ -164,22 +164,24 @@ export function LandingPage() {
             </Link>
           </nav>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
             {isLoggedIn ? (
               <Link href="/dashboard">
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button variant="outline" size="sm" className="gap-1 sm:gap-2 px-2 sm:px-3 h-8 sm:h-9">
                   <LayoutDashboard className="h-4 w-4" />
-                  {user?.name}
+                  <span className="hidden sm:inline">{user?.name}</span>
                 </Button>
               </Link>
             ) : (
-              <AuthModal />
+              <div className="hidden sm:block">
+                <AuthModal />
+              </div>
             )}
             <Link href="/chat">
-              <Button size="sm" className="gap-2">
+              <Button size="sm" className="gap-1 sm:gap-2 px-2 sm:px-3 h-8 sm:h-9">
                 <MessageSquare className="h-4 w-4" />
-                Chatbot
+                <span className="hidden xs:inline">Chatbot</span>
               </Button>
             </Link>
           </div>
@@ -187,33 +189,33 @@ export function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 md:py-32">
+      <section className="relative overflow-hidden py-12 sm:py-16 md:py-24 lg:py-32">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-background to-background" />
         <div className="mx-auto max-w-7xl px-4 text-center">
           <div className="mx-auto max-w-3xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-sm">
-              <Zap className="h-4 w-4 text-primary" />
+            <div className="mb-4 sm:mb-6 inline-flex items-center gap-2 rounded-full border bg-muted/50 px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm">
+              <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
               <span>Tu asistente de vuelos con IA</span>
             </div>
-            <h1 className="mb-6 text-4xl font-bold tracking-tight text-balance md:text-6xl lg:text-7xl">
+            <h1 className="mb-4 sm:mb-6 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-balance">
               Encuentra el vuelo perfecto con{' '}
               <span className="text-primary">FlyBot</span>
             </h1>
-            <p className="mb-8 text-lg text-muted-foreground text-balance md:text-xl">
+            <p className="mb-6 sm:mb-8 text-base sm:text-lg md:text-xl text-muted-foreground text-balance px-2">
               Compara aerolineas, rastrea vuelos, calcula equipaje y mucho mas. 
               Todo lo que necesitas para viajar inteligente en un solo lugar.
             </p>
-            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Link href="/chat">
-                <Button size="lg" className="gap-2 text-base">
-                  <MessageSquare className="h-5 w-5" />
+            <div className="flex flex-col items-center justify-center gap-3 sm:gap-4 sm:flex-row px-4 sm:px-0">
+              <Link href="/chat" className="w-full sm:w-auto">
+                <Button size="lg" className="gap-2 text-sm sm:text-base w-full sm:w-auto">
+                  <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5" />
                   Hablar con FlyBot
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="/vuelos">
-                <Button size="lg" variant="outline" className="gap-2 text-base">
-                  <Search className="h-5 w-5" />
+              <Link href="/vuelos" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="gap-2 text-sm sm:text-base w-full sm:w-auto">
+                  <Search className="h-4 w-4 sm:h-5 sm:w-5" />
                   Buscar Vuelos
                 </Button>
               </Link>
@@ -421,9 +423,9 @@ export function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-12">
+      <footer className="border-t py-8 sm:py-12">
         <div className="mx-auto max-w-7xl px-4">
-          <div className="grid gap-8 md:grid-cols-4">
+          <div className="grid gap-6 sm:gap-8 grid-cols-2 sm:grid-cols-2 md:grid-cols-4">
             <div>
               <Link href="/" className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
