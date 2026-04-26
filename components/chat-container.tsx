@@ -5,17 +5,18 @@ import type { Message } from '@/lib/types'
 import { processUserMessage } from '@/lib/mock-data'
 import { ChatMessage } from './chat-message'
 import { ChatInput } from './chat-input'
-import { Plane, Loader2, Trophy, Search, MessageSquare, Map, Luggage, GitCompare, Menu, X, Bell, BookOpen, Radar, Wrench, Building2, FileCheck, ClipboardList, User, LayoutDashboard } from 'lucide-react'
+import { Plane, Loader2, Trophy, Search, MessageSquare, Map, Luggage, GitCompare, Menu, X, Bell, BookOpen, Radar, Wrench, Building2, FileCheck, ClipboardList, User, LayoutDashboard, MapPin, Navigation } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { AuthModal } from '@/components/auth-modal'
 import { useUser } from '@/lib/user-context'
+import { useLocation } from '@/lib/location-context'
 
 const welcomeMessage: Message = {
   id: 'welcome',
   role: 'assistant',
-  content: `¡Bienvenido a **Vola SV **! ✈️\n\nSoy tu asistente inteligente para encontrar los mejores vuelos. Puedo ayudarte a:\n\n• 🔍 Buscar vuelos entre cualquier ciudad\n• 💰 Comparar precios de diferentes aerolíneas\n• ⭐ Evaluar opciones según rating y escalas\n\n**¿A dónde quieres viajar hoy?**`,
+  content: `Bienvenido a **Vola SV**!\n\nSoy tu asistente inteligente para encontrar los mejores vuelos. Puedo ayudarte a:\n\n- Buscar vuelos desde tu ubicacion actual\n- Comparar precios de diferentes aerolineas\n- Encontrar aeropuertos cercanos\n\n**Tip**: Activa tu ubicacion para que pueda buscar vuelos automaticamente desde el aeropuerto mas cercano.\n\n**A donde quieres viajar hoy?**`,
   timestamp: new Date(),
 }
 
@@ -39,8 +40,10 @@ export function ChatContainer() {
   const [messages, setMessages] = useState<Message[]>([welcomeMessage])
   const [isLoading, setIsLoading] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [hasShownLocationWelcome, setHasShownLocationWelcome] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { user, isLoggedIn, logout } = useUser()
+  const { location, loading: locationLoading, requestLocation } = useLocation()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -49,6 +52,20 @@ export function ChatContainer() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // Show location-aware welcome when location becomes available
+  useEffect(() => {
+    if (location && !hasShownLocationWelcome && messages.length === 1) {
+      setHasShownLocationWelcome(true)
+      const locationWelcome: Message = {
+        id: `location-welcome-${Date.now()}`,
+        role: 'assistant',
+        content: `He detectado tu ubicacion: **${location.city}, ${location.country}**\n\nTu aeropuerto mas cercano es **${location.nearestAirport.name}** (${location.nearestAirport.code}) a ${Math.round(location.nearestAirport.distance)} km.\n\nAhora cuando me digas a donde quieres viajar, buscare vuelos automaticamente desde ${location.nearestAirport.code}. Solo dime tu destino!`,
+        timestamp: new Date(),
+      }
+      setMessages(prev => [...prev, locationWelcome])
+    }
+  }, [location, hasShownLocationWelcome, messages.length])
 
   const handleSend = async (content: string) => {
     const userMessage: Message = {
@@ -64,18 +81,23 @@ export function ChatContainer() {
     // Simular delay de respuesta
     await new Promise((resolve) => setTimeout(resolve, 1000 + Math.random() * 500))
 
-    const { response, flights } = processUserMessage(content)
+    const result = processUserMessage(content, location)
 
     const assistantMessage: Message = {
       id: `assistant-${Date.now()}`,
       role: 'assistant',
-      content: response,
-      flights,
+      content: result.response,
+      flights: result.flights,
       timestamp: new Date(),
     }
 
     setMessages((prev) => [...prev, assistantMessage])
     setIsLoading(false)
+
+    // If the response suggests requesting location, we can prompt the user
+    if (result.needsLocation && !location) {
+      // Location will be handled by the location button in the UI
+    }
   }
 
   return (
@@ -122,6 +144,30 @@ export function ChatContainer() {
             <div className="hidden sm:block">
               <AuthModal />
             </div>
+          )}
+          {/* Location indicator/button */}
+          {location ? (
+            <div className="hidden sm:flex items-center gap-2 px-2 py-1 rounded-lg bg-green-500/10 border border-green-500/20">
+              <MapPin className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+              <span className="text-xs text-green-700 dark:text-green-300 font-medium truncate max-w-24">
+                {location.nearestAirport.code}
+              </span>
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={requestLocation}
+              disabled={locationLoading}
+              className="hidden sm:flex gap-1.5 text-xs h-8"
+            >
+              {locationLoading ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Navigation className="h-3.5 w-3.5" />
+              )}
+              <span className="hidden md:inline">Ubicacion</span>
+            </Button>
           )}
           <div className="hidden sm:flex items-center gap-2">
             <span className="flex h-2 w-2 rounded-full bg-green-500" />

@@ -1,6 +1,5 @@
 "use client"
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,83 +13,10 @@ import {
   RefreshCw,
   ArrowRight
 } from 'lucide-react'
-import { getNearbyAirports, AirportWithCoordinates } from '@/lib/airports-coordinates'
-
-interface NearbyAirport extends AirportWithCoordinates {
-  distance: number
-}
+import { useLocation } from '@/lib/location-context'
 
 export function NearbyAirports() {
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null)
-  const [nearbyAirports, setNearbyAirports] = useState<NearbyAirport[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [locationName, setLocationName] = useState<string>('')
-
-  const requestLocation = () => {
-    setLoading(true)
-    setError(null)
-
-    if (!navigator.geolocation) {
-      setError('Tu navegador no soporta geolocalizacion')
-      setLoading(false)
-      return
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords
-        setLocation({ lat: latitude, lng: longitude })
-        
-        // Obtener aeropuertos cercanos
-        const airports = getNearbyAirports(latitude, longitude, 8)
-        setNearbyAirports(airports)
-        
-        // Intentar obtener nombre de la ubicacion
-        try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
-            {
-              headers: {
-                'User-Agent': 'FlyBot/1.0 (UFG Project - Anthony Sigaran & Carlos Ansorje)'
-              }
-            }
-          )
-          const data = await response.json()
-          if (data.address) {
-            const city = data.address.city || data.address.town || data.address.village || data.address.state
-            const country = data.address.country
-            setLocationName(city ? `${city}, ${country}` : country)
-          }
-        } catch {
-          setLocationName('Tu ubicacion')
-        }
-        
-        setLoading(false)
-      },
-      (err) => {
-        switch (err.code) {
-          case err.PERMISSION_DENIED:
-            setError('Permiso de ubicacion denegado. Por favor, habilita el acceso a tu ubicacion.')
-            break
-          case err.POSITION_UNAVAILABLE:
-            setError('Informacion de ubicacion no disponible.')
-            break
-          case err.TIMEOUT:
-            setError('La solicitud de ubicacion ha expirado.')
-            break
-          default:
-            setError('Error desconocido al obtener la ubicacion.')
-        }
-        setLoading(false)
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-      }
-    )
-  }
+  const { location, loading, error, requestLocation } = useLocation()
 
   const formatDistance = (km: number): string => {
     if (km < 1) {
@@ -172,6 +98,8 @@ export function NearbyAirports() {
     )
   }
 
+  if (!location) return null
+
   return (
     <div className="space-y-6">
       <Card className="bg-primary/5 border-primary/20">
@@ -183,7 +111,9 @@ export function NearbyAirports() {
               </div>
               <div>
                 <p className="font-medium">Tu ubicacion actual</p>
-                <p className="text-sm text-muted-foreground">{locationName || 'Ubicacion detectada'}</p>
+                <p className="text-sm text-muted-foreground">
+                  {location.city}, {location.country}
+                </p>
               </div>
             </div>
             <Button onClick={requestLocation} variant="ghost" size="sm" className="gap-2">
@@ -200,7 +130,7 @@ export function NearbyAirports() {
           Aeropuertos cercanos a ti
         </h3>
         <div className="grid gap-3 sm:grid-cols-2">
-          {nearbyAirports.map((airport, index) => (
+          {location.nearbyAirports.map((airport, index) => (
             <Card 
               key={airport.code} 
               className={`transition-all hover:shadow-md ${index === 0 ? 'border-primary ring-1 ring-primary/20' : ''}`}

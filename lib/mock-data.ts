@@ -1,5 +1,6 @@
 import type { Airline, Flight } from './types'
 import { popularAirports } from './flights-data'
+import type { UserLocation } from './location-context'
 
 export const airlines: Airline[] = [
   { id: '1', name: 'Aeromexico', logo: 'AM', rating: 4.2 },
@@ -158,11 +159,50 @@ export function generateFlights(origin: string, destination: string): Flight[] {
   }).sort((a, b) => a.price - b.price)
 }
 
-export function processUserMessage(message: string): { response: string; flights?: Flight[] } {
+export function processUserMessage(
+  message: string, 
+  userLocation?: UserLocation | null
+): { response: string; flights?: Flight[]; needsLocation?: boolean; suggestedAction?: string } {
   const lowerMessage = message.toLowerCase()
   
   // Extraer origen y destino del mensaje
   const { origin, destination } = extractLocations(message)
+  
+  // Check if user is asking about airports or nearby airports
+  if (lowerMessage.includes('aeropuerto') && (lowerMessage.includes('cerca') || lowerMessage.includes('cercano'))) {
+    if (userLocation) {
+      const airports = userLocation.nearbyAirports.slice(0, 5)
+      const airportList = airports.map((a, i) => 
+        `${i + 1}. **${a.name}** (${a.code}) - ${Math.round(a.distance)} km`
+      ).join('\n')
+      
+      return {
+        response: `Basandome en tu ubicacion en **${userLocation.city}, ${userLocation.country}**, estos son los aeropuertos mas cercanos:\n\n${airportList}\n\nEl mas cercano es **${userLocation.nearestAirport.name}** (${userLocation.nearestAirport.code}) a solo ${Math.round(userLocation.nearestAirport.distance)} km.\n\nQuieres que busque vuelos desde ${userLocation.nearestAirport.code}?`
+      }
+    } else {
+      return {
+        response: `Para mostrarte los aeropuertos cercanos, necesito acceso a tu ubicacion.\n\nHaz clic en el boton de ubicacion para permitir el acceso y poder ayudarte mejor.`,
+        needsLocation: true,
+        suggestedAction: 'request_location'
+      }
+    }
+  }
+  
+  // Check if user wants flight recommendations based on location
+  if ((lowerMessage.includes('recomienda') || lowerMessage.includes('sugiere') || lowerMessage.includes('opciones')) && 
+      lowerMessage.includes('vuelo')) {
+    if (userLocation) {
+      return {
+        response: `Desde **${userLocation.city}, ${userLocation.country}**, tu aeropuerto mas cercano es **${userLocation.nearestAirport.name}** (${userLocation.nearestAirport.code}).\n\nAlgunos destinos populares desde tu ubicacion:\n\n• **Miami** (MIA) - Gateway a Estados Unidos\n• **Madrid** (MAD) - Puerta a Europa\n• **Ciudad de Panama** (PTY) - Hub de conexiones\n• **Bogota** (BOG) - Sudamerica\n\nDime a donde quieres ir y buscare las mejores opciones!`
+      }
+    } else {
+      return {
+        response: `Para recomendarte vuelos personalizados, necesito saber tu ubicacion.\n\nActiva tu ubicacion para que pueda sugerirte vuelos desde el aeropuerto mas cercano a ti.`,
+        needsLocation: true,
+        suggestedAction: 'request_location'
+      }
+    }
+  }
   
   // Si tenemos origen y destino
   if (origin && destination) {
@@ -189,12 +229,28 @@ export function processUserMessage(message: string): { response: string; flights
     }
   }
   
-  // Si solo tenemos destino
+  // Si solo tenemos destino - usar ubicacion del usuario como origen
   if (destination && !origin) {
     const destAirport = findAirport(destination)
     if (destAirport) {
+      // Si tenemos la ubicacion del usuario, usar su aeropuerto mas cercano como origen
+      if (userLocation && userLocation.nearestAirport) {
+        const userOrigin = userLocation.nearestAirport
+        const flights = generateFlights(userOrigin.city, destination)
+        
+        if (flights.length > 0) {
+          return {
+            response: `Basandome en tu ubicacion en **${userLocation.city}, ${userLocation.country}**, buscare vuelos desde **${userOrigin.name}** (${userOrigin.code}) a **${destAirport.city}, ${destAirport.country}** (${destAirport.code}).\n\nHe encontrado **${flights.length} vuelos**:`,
+            flights,
+          }
+        }
+      }
+      
+      // Si no tenemos ubicacion, pedir que la activen o especifiquen origen
       return {
-        response: `Quieres viajar a **${destAirport.city}, ${destAirport.country}** (${destAirport.code}).\n\nPara buscar vuelos, necesito saber desde donde sales. Por ejemplo:\n*"Vuelo desde San Salvador a ${destAirport.city}"*`,
+        response: `Quieres viajar a **${destAirport.city}, ${destAirport.country}** (${destAirport.code}).\n\nPara buscar vuelos, puedo usar tu ubicacion actual o puedes decirme desde donde sales.\n\n**Opcion 1**: Activa tu ubicacion y buscare desde el aeropuerto mas cercano\n**Opcion 2**: Escribeme el origen, ejemplo: *"Vuelo desde San Salvador a ${destAirport.city}"*`,
+        needsLocation: true,
+        suggestedAction: 'request_location'
       }
     }
   }
@@ -221,8 +277,14 @@ export function processUserMessage(message: string): { response: string; flights
   
   // Saludo inicial
   if (lowerMessage.includes('hola') || lowerMessage.includes('buenos') || lowerMessage.includes('hey') || lowerMessage.includes('hi') || message.length < 10) {
+    if (userLocation) {
+      return {
+        response: `Hola! Soy **Vola SV**, tu asistente de vuelos.\n\nVeo que estas en **${userLocation.city}, ${userLocation.country}**. Tu aeropuerto mas cercano es **${userLocation.nearestAirport.name}** (${userLocation.nearestAirport.code}).\n\nPuedo ayudarte a:\n• Buscar vuelos desde tu ubicacion\n• Comparar precios de diferentes aerolineas\n• Encontrar aeropuertos cercanos\n\nSolo dime a donde quieres viajar y buscare vuelos desde ${userLocation.nearestAirport.code}!`,
+      }
+    }
     return {
-      response: `Hola! Soy **Vola SV**, tu asistente de vuelos.\n\nPuedo ayudarte a:\n• Buscar vuelos entre mas de **120 aeropuertos** del mundo\n• Comparar precios de diferentes aerolineas\n• Mostrarte las mejores opciones\n\n**Ejemplo**: *"Quiero un vuelo de San Salvador a Nueva York"*\n\nA donde te gustaria viajar?`,
+      response: `Hola! Soy **Vola SV**, tu asistente de vuelos.\n\nPuedo ayudarte a:\n• Buscar vuelos entre mas de **120 aeropuertos** del mundo\n• Comparar precios de diferentes aerolineas\n• Encontrar aeropuertos cercanos a ti\n\n**Tip**: Activa tu ubicacion para que pueda buscar vuelos automaticamente desde el aeropuerto mas cercano a ti.\n\nA donde te gustaria viajar?`,
+      needsLocation: true,
     }
   }
   
