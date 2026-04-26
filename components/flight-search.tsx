@@ -192,10 +192,10 @@ function FlightResultCard({
     <Card className={`transition-all ${expanded ? 'ring-2 ring-primary' : ''}`}>
       <CardContent className="p-4">
         {/* Main Info */}
-        <div className="flex items-center gap-4">
-          {/* Airlines */}
-          <div className="flex flex-col items-center gap-1">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary font-bold text-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+          {/* Airlines - hidden on mobile, shown inline */}
+          <div className="hidden sm:flex flex-col items-center gap-1">
+            <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-lg bg-primary/10 text-primary font-bold text-xs">
               {flight.airlines[0]}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -204,14 +204,14 @@ function FlightResultCard({
           </div>
 
           {/* Times & Route */}
-          <div className="flex-1 grid grid-cols-3 gap-2 items-center">
+          <div className="flex-1 grid grid-cols-3 gap-1 sm:gap-2 items-center">
             <div className="text-center">
-              <p className="text-xl font-bold">{formatTime(flight.local_departure)}</p>
-              <p className="text-sm font-medium">{flight.flyFrom}</p>
-              <p className="text-xs text-muted-foreground">{formatDate(flight.local_departure)}</p>
+              <p className="text-lg sm:text-xl font-bold">{formatTime(flight.local_departure)}</p>
+              <p className="text-xs sm:text-sm font-medium">{flight.flyFrom}</p>
+              <p className="text-xs text-muted-foreground hidden sm:block">{formatDate(flight.local_departure)}</p>
             </div>
 
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-0.5 sm:gap-1">
               <p className="text-xs text-muted-foreground">{formatDuration(flight.duration.departure)}</p>
               <div className="flex items-center gap-1 w-full">
                 <div className="h-px flex-1 bg-border" />
@@ -219,29 +219,37 @@ function FlightResultCard({
                 <div className="h-px flex-1 bg-border" />
               </div>
               <p className="text-xs text-muted-foreground">
-                {stops === 0 ? 'Directo' : `${stops} escala${stops > 1 ? 's' : ''}`}
+                {stops === 0 ? 'Directo' : `${stops} esc.`}
               </p>
             </div>
 
             <div className="text-center">
-              <p className="text-xl font-bold">{formatTime(flight.local_arrival)}</p>
-              <p className="text-sm font-medium">{flight.flyTo}</p>
-              <p className="text-xs text-muted-foreground">{formatDate(flight.local_arrival)}</p>
+              <p className="text-lg sm:text-xl font-bold">{formatTime(flight.local_arrival)}</p>
+              <p className="text-xs sm:text-sm font-medium">{flight.flyTo}</p>
+              <p className="text-xs text-muted-foreground hidden sm:block">{formatDate(flight.local_arrival)}</p>
             </div>
           </div>
 
           {/* Price & Book */}
-          <div className="text-right">
-            <p className="text-2xl font-bold text-primary">
-              ${flight.price}
-              <span className="text-sm font-normal text-muted-foreground ml-1">USD</span>
-            </p>
-            {flight.availability?.seats && (
-              <p className="text-xs text-muted-foreground mb-2">
-                {flight.availability.seats} asientos
+          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start pt-2 sm:pt-0 border-t sm:border-t-0">
+            <div className="flex sm:hidden items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded bg-primary/10 text-primary font-bold text-xs">
+                {flight.airlines[0]}
+              </div>
+              <span className="text-xs text-muted-foreground">{formatDate(flight.local_departure)}</span>
+            </div>
+            <div className="text-right">
+              <p className="text-xl sm:text-2xl font-bold text-primary">
+                ${flight.price}
+                <span className="text-xs sm:text-sm font-normal text-muted-foreground ml-1">USD</span>
               </p>
-            )}
-            <Button size="sm" asChild>
+              {flight.availability?.seats && (
+                <p className="text-xs text-muted-foreground hidden sm:block mb-2">
+                  {flight.availability.seats} asientos
+                </p>
+              )}
+            </div>
+            <Button size="sm" asChild className="ml-2 sm:ml-0 sm:mt-2">
               <a href={flight.deep_link} target="_blank" rel="noopener noreferrer" className="gap-1">
                 Reservar <ExternalLink className="h-3 w-3" />
               </a>
@@ -418,7 +426,7 @@ export function FlightSearch() {
           <CardContent className="p-4 sm:p-6">
             <div className="grid gap-4">
               {/* Origin & Destination */}
-              <div className="flex items-end gap-2">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-2">
                 <AirportSelector
                   label="Origen"
                   value={originCode}
@@ -432,9 +440,9 @@ export function FlightSearch() {
                 <button
                   type="button"
                   onClick={swapAirports}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border hover:bg-muted transition-colors mb-0.5"
+                  className="flex h-8 sm:h-10 w-full sm:w-10 items-center justify-center rounded-lg sm:rounded-full border hover:bg-muted transition-colors"
                 >
-                  <ArrowRightLeft className="h-4 w-4" />
+                  <ArrowRightLeft className="h-4 w-4 rotate-90 sm:rotate-0" />
                 </button>
                 <AirportSelector
                   label="Destino"
@@ -449,7 +457,7 @@ export function FlightSearch() {
               </div>
 
               {/* Date & Passengers */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                 <div>
                   <Label className="text-xs text-muted-foreground mb-1.5 block">Fecha salida</Label>
                   <div className="relative">
