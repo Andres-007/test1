@@ -5,9 +5,12 @@ import type { Message } from '@/lib/types'
 import { processUserMessage } from '@/lib/mock-data'
 import { ChatMessage } from './chat-message'
 import { ChatInput } from './chat-input'
-import { Plane, Loader2, Trophy, Search, MessageSquare, Map, Luggage, GitCompare, Menu, X, Bell, BookOpen } from 'lucide-react'
+import { Plane, Loader2, Trophy, Search, MessageSquare, Map, Luggage, GitCompare, Menu, X, Bell, BookOpen, Radar, Wrench, Building2, FileCheck, ClipboardList, User, LayoutDashboard } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { ThemeToggle } from '@/components/theme-toggle'
+import { AuthModal } from '@/components/auth-modal'
+import { useUser } from '@/lib/user-context'
 
 const welcomeMessage: Message = {
   id: 'welcome',
@@ -20,9 +23,14 @@ const navigationLinks = [
   { href: '/ranking', icon: Trophy, label: 'Ranking' },
   { href: '/vuelos', icon: Search, label: 'Vuelos' },
   { href: '/comparador', icon: GitCompare, label: 'Comparador' },
-  { href: '/resenas', icon: MessageSquare, label: 'Reseñas' },
+  { href: '/seguimiento', icon: Radar, label: 'Rastrear' },
   { href: '/mapa', icon: Map, label: 'Mapa' },
+  { href: '/aeropuertos', icon: Building2, label: 'Aeropuertos' },
+  { href: '/requisitos', icon: FileCheck, label: 'Requisitos' },
+  { href: '/checklist', icon: ClipboardList, label: 'Checklist' },
+  { href: '/herramientas', icon: Wrench, label: 'Herramientas' },
   { href: '/equipaje', icon: Luggage, label: 'Equipaje' },
+  { href: '/resenas', icon: MessageSquare, label: 'Resenas' },
   { href: '/blog', icon: BookOpen, label: 'Blog' },
   { href: '/alertas', icon: Bell, label: 'Alertas' },
 ]
@@ -32,6 +40,7 @@ export function ChatContainer() {
   const [isLoading, setIsLoading] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const { user, isLoggedIn, logout } = useUser()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -72,23 +81,23 @@ export function ChatContainer() {
   return (
     <div className="flex h-screen flex-col bg-background">
       {/* Header */}
-      <header className="flex items-center justify-between border-b bg-card px-4 py-3 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Plane className="h-5 w-5" />
+      <header className="flex items-center justify-between border-b bg-card px-2 sm:px-4 py-2 sm:py-3 shadow-sm">
+        <Link href="/" className="flex items-center gap-2 sm:gap-3">
+          <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+            <Plane className="h-4 w-4 sm:h-5 sm:w-5" />
           </div>
-          <div>
-            <h1 className="text-lg font-bold text-foreground">Vola SV</h1>
-            <p className="text-xs text-muted-foreground">Comparador inteligente de aerolíneas</p>
+          <div className="hidden xs:block">
+            <h1 className="text-base sm:text-lg font-bold text-foreground">Vola SV</h1>
+            <p className="text-xs text-muted-foreground hidden sm:block">Comparador inteligente</p>
           </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-1">
-            {navigationLinks.map((link) => (
+        </Link>
+        <div className="flex items-center gap-1 sm:gap-2">
+          <div className="hidden lg:flex items-center gap-1">
+            {navigationLinks.slice(0, 6).map((link) => (
               <Link key={link.href} href={link.href}>
-                <Button variant="ghost" size="sm" className="gap-1.5 text-xs">
+                <Button variant="ghost" size="sm" className="gap-1.5 text-xs px-2">
                   <link.icon className="h-4 w-4" />
-                  <span className="hidden lg:inline">{link.label}</span>
+                  <span className="hidden xl:inline">{link.label}</span>
                 </Button>
               </Link>
             ))}
@@ -96,31 +105,49 @@ export function ChatContainer() {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="lg:hidden h-8 w-8 sm:h-9 sm:w-9"
             onClick={() => setMenuOpen(!menuOpen)}
           >
-            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {menuOpen ? <X className="h-4 w-4 sm:h-5 sm:w-5" /> : <Menu className="h-4 w-4 sm:h-5 sm:w-5" />}
           </Button>
-          <div className="flex items-center gap-2">
+          <ThemeToggle />
+          {isLoggedIn ? (
+            <Link href="/dashboard">
+              <Button variant="ghost" size="sm" className="gap-1 sm:gap-2 px-2 sm:px-3 h-8 sm:h-9">
+                <LayoutDashboard className="h-4 w-4" />
+                <span className="hidden sm:inline text-xs">{user?.name}</span>
+              </Button>
+            </Link>
+          ) : (
+            <div className="hidden sm:block">
+              <AuthModal />
+            </div>
+          )}
+          <div className="hidden sm:flex items-center gap-2">
             <span className="flex h-2 w-2 rounded-full bg-green-500" />
-            <span className="text-xs text-muted-foreground">En línea</span>
+            <span className="text-xs text-muted-foreground">En linea</span>
           </div>
         </div>
       </header>
 
       {/* Mobile Navigation Menu */}
       {menuOpen && (
-        <nav className="md:hidden border-b bg-card px-4 py-2 shadow-sm animate-in slide-in-from-top">
-          <div className="grid grid-cols-2 gap-2">
+        <nav className="lg:hidden border-b bg-card px-2 sm:px-4 py-2 shadow-sm animate-in slide-in-from-top max-h-[60vh] overflow-y-auto">
+          <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 gap-1 sm:gap-2">
             {navigationLinks.map((link) => (
               <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)}>
-                <Button variant="outline" size="sm" className="w-full gap-2 justify-start">
-                  <link.icon className="h-4 w-4" />
-                  {link.label}
+                <Button variant="outline" size="sm" className="w-full gap-1 sm:gap-2 justify-start text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9">
+                  <link.icon className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                  <span className="truncate">{link.label}</span>
                 </Button>
               </Link>
             ))}
           </div>
+          {!isLoggedIn && (
+            <div className="mt-2 pt-2 border-t sm:hidden">
+              <AuthModal />
+            </div>
+          )}
         </nav>
       )}
 

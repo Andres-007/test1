@@ -1,15 +1,27 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { ThemeProvider } from '@/components/providers/theme-provider'
+import { UserProvider } from '@/lib/user-context'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'SkyCompare - Comparador de Aerolíneas',
-  description: 'Encuentra los mejores vuelos comparando aerolíneas, precios y destinos con nuestro asistente inteligente',
+  title: 'SkyCompare - Comparador de Aerolineas',
+  description: 'Encuentra los mejores vuelos comparando aerolineas, precios y destinos con nuestro asistente inteligente',
   generator: 'v0.app',
+  manifest: '/manifest.json',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },
+  ],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'SkyCompare',
+  },
   icons: {
     icon: [
       {
@@ -35,9 +47,18 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className="bg-background">
+    <html lang="es" suppressHydrationWarning className="bg-background">
       <body className="font-sans antialiased bg-background">
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <UserProvider>
+            {children}
+          </UserProvider>
+        </ThemeProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
