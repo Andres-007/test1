@@ -465,7 +465,7 @@ export function LandingPage() {
           </div>
           <div className="mt-12 border-t pt-8">
             <div className="flex flex-col items-center gap-4 text-center text-sm text-muted-foreground">
-              <p>2024 FlyBot. Todos los derechos reservados.</p>
+              <p>2026 FlyBot. Todos los derechos reservados.</p>
               <div className="flex flex-col items-center gap-2">
                 <p className="font-medium text-foreground">Desarrollado por:</p>
                 <p>Anthony Sigaran &amp; Carlos Ansorje</p>
