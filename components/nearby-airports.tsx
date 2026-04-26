@@ -49,7 +49,12 @@ export function NearbyAirports() {
         // Intentar obtener nombre de la ubicacion
         try {
           const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`,
+            {
+              headers: {
+                'User-Agent': 'FlyBot/1.0 (UFG Project - Anthony Sigaran & Carlos Ansorje)'
+              }
+            }
           )
           const data = await response.json()
           if (data.address) {
