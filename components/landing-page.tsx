@@ -463,8 +463,18 @@ export function LandingPage() {
               </ul>
             </div>
           </div>
-          <div className="mt-12 border-t pt-8 text-center text-sm text-muted-foreground">
-            <p>2024 FlyBot. Todos los derechos reservados.</p>
+          <div className="mt-12 border-t pt-8">
+            <div className="flex flex-col items-center gap-4 text-center text-sm text-muted-foreground">
+              <p>2026 FlyBot. Todos los derechos reservados.</p>
+              <div className="flex flex-col items-center gap-2">
+                <p className="font-medium text-foreground">Desarrollado por:</p>
+                <p>Anthony Sigaran &amp; Carlos Ansorje</p>
+                <p className="flex items-center gap-2">
+                  Proyecto de la{' '}
+                  <span className="font-semibold text-primary">Universidad Francisco Gavidia (UFG)</span>
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
