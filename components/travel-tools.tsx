@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,23 +22,10 @@ import {
   Calculator,
   ArrowRightLeft,
   Info,
+  Loader2,
+  RefreshCw,
 } from 'lucide-react'
-
-// Currency data with exchange rates (relative to USD)
-const currencies = [
-  { code: 'USD', name: 'Dolar estadounidense', symbol: '$', rate: 1 },
-  { code: 'EUR', name: 'Euro', symbol: '€', rate: 0.92 },
-  { code: 'GBP', name: 'Libra esterlina', symbol: '£', rate: 0.79 },
-  { code: 'JPY', name: 'Yen japones', symbol: '¥', rate: 149.50 },
-  { code: 'MXN', name: 'Peso mexicano', symbol: '$', rate: 17.15 },
-  { code: 'ARS', name: 'Peso argentino', symbol: '$', rate: 870.00 },
-  { code: 'COP', name: 'Peso colombiano', symbol: '$', rate: 3950.00 },
-  { code: 'BRL', name: 'Real brasileno', symbol: 'R$', rate: 4.97 },
-  { code: 'CAD', name: 'Dolar canadiense', symbol: '$', rate: 1.36 },
-  { code: 'AUD', name: 'Dolar australiano', symbol: '$', rate: 1.53 },
-  { code: 'CHF', name: 'Franco suizo', symbol: 'Fr', rate: 0.88 },
-  { code: 'CNY', name: 'Yuan chino', symbol: '¥', rate: 7.24 },
-]
+import { popularCurrencies } from '@/lib/currency-api'
 
 // Airline loyalty programs
 const loyaltyPrograms = [
@@ -79,6 +66,10 @@ export function TravelTools() {
   const [fromCurrency, setFromCurrency] = useState('USD')
   const [toCurrency, setToCurrency] = useState('EUR')
   const [amount, setAmount] = useState('100')
+  const [convertedAmount, setConvertedAmount] = useState<number | null>(null)
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null)
+  const [rateDate, setRateDate] = useState<string | null>(null)
+  const [isLoadingCurrency, setIsLoadingCurrency] = useState(false)
 
   // Miles calculator state
   const [program, setProgram] = useState(loyaltyPrograms[0].name)
@@ -86,14 +77,42 @@ export function TravelTools() {
   const [distance, setDistance] = useState('')
   const [ticketPrice, setTicketPrice] = useState('')
 
-  const convertCurrency = () => {
-    const from = currencies.find(c => c.code === fromCurrency)
-    const to = currencies.find(c => c.code === toCurrency)
-    if (!from || !to || !amount) return 0
-    
-    const inUSD = parseFloat(amount) / from.rate
-    return inUSD * to.rate
+  // Fetch real exchange rate
+  const fetchExchangeRate = async () => {
+    if (fromCurrency === toCurrency) {
+      setConvertedAmount(parseFloat(amount) || 0)
+      setExchangeRate(1)
+      setRateDate(new Date().toISOString().split('T')[0])
+      return
+    }
+
+    setIsLoadingCurrency(true)
+    try {
+      const res = await fetch(
+        `/api/currency?action=convert&from=${fromCurrency}&to=${toCurrency}&amount=${amount || 1}`
+      )
+      const data = await res.json()
+      
+      if (data.result) {
+        setConvertedAmount(data.result)
+        setExchangeRate(data.rate)
+        setRateDate(data.date)
+      }
+    } catch (error) {
+      console.error('Error fetching exchange rate:', error)
+    } finally {
+      setIsLoadingCurrency(false)
+    }
   }
+
+  // Fetch rate when currencies or amount change
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchExchangeRate()
+    }, 500)
+    
+    return () => clearTimeout(timeoutId)
+  }, [fromCurrency, toCurrency, amount])
 
   const swapCurrencies = () => {
     const temp = fromCurrency
@@ -110,9 +129,7 @@ export function TravelTools() {
     const dist = parseFloat(distance) || 0
     const price = parseFloat(ticketPrice) || 0
     
-    // Calculate miles based on distance and cabin class
     const baseMiles = dist * selectedProgram.milesPerKm * selectedCabin.multiplier
-    // Add bonus miles based on ticket price
     const bonusMiles = price * selectedProgram.milesPerDollar
     
     return Math.round(baseMiles + bonusMiles)
@@ -158,9 +175,12 @@ export function TravelTools() {
                 <CardTitle className="flex items-center gap-2">
                   <DollarSign className="h-5 w-5" />
                   Conversor de Monedas
+                  <span className="ml-auto text-xs font-normal text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">
+                    Datos en tiempo real
+                  </span>
                 </CardTitle>
                 <CardDescription>
-                  Convierte precios entre diferentes monedas
+                  Convierte precios entre diferentes monedas con tasas actualizadas
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -173,9 +193,9 @@ export function TravelTools() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {currencies.map((c) => (
+                        {popularCurrencies.map((c) => (
                           <SelectItem key={c.code} value={c.code}>
-                            {c.code} - {c.name}
+                            {c.symbol} {c.code} - {c.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -203,29 +223,49 @@ export function TravelTools() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {currencies.map((c) => (
+                        {popularCurrencies.map((c) => (
                           <SelectItem key={c.code} value={c.code}>
-                            {c.code} - {c.name}
+                            {c.symbol} {c.code} - {c.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    <div className="h-10 px-3 py-2 border rounded-md bg-muted flex items-center">
-                      <span className="text-lg font-bold">
-                        {currencies.find(c => c.code === toCurrency)?.symbol}
-                        {convertCurrency().toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </span>
+                    <div className="h-10 px-3 py-2 border rounded-md bg-muted flex items-center justify-between">
+                      {isLoadingCurrency ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <span className="text-lg font-bold">
+                          {popularCurrencies.find(c => c.code === toCurrency)?.symbol}
+                          {convertedAmount?.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
 
                 <div className="p-4 bg-muted rounded-lg flex items-start gap-3">
                   <Info className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div className="text-sm text-muted-foreground">
-                    <p>Tasas de cambio aproximadas. Los valores reales pueden variar.</p>
-                    <p className="mt-1">
-                      1 {fromCurrency} = {(currencies.find(c => c.code === toCurrency)?.rate || 1) / (currencies.find(c => c.code === fromCurrency)?.rate || 1)} {toCurrency}
-                    </p>
+                  <div className="text-sm text-muted-foreground flex-1">
+                    {exchangeRate && rateDate ? (
+                      <>
+                        <p className="flex items-center gap-2">
+                          1 {fromCurrency} = {exchangeRate.toFixed(4)} {toCurrency}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={fetchExchangeRate}
+                          >
+                            <RefreshCw className="h-3 w-3" />
+                          </Button>
+                        </p>
+                        <p className="mt-1 text-xs">
+                          Tasa actualizada: {rateDate} | Fuente: Frankfurter API (BCE)
+                        </p>
+                      </>
+                    ) : (
+                      <p>Cargando tasas de cambio...</p>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -321,7 +361,7 @@ export function TravelTools() {
                         className="justify-between h-auto py-3"
                         onClick={() => setDistance(route.distance.toString())}
                       >
-                        <span>{route.from} → {route.to}</span>
+                        <span>{route.from} - {route.to}</span>
                         <span className="text-muted-foreground">{route.distance.toLocaleString()} km</span>
                       </Button>
                     ))}
