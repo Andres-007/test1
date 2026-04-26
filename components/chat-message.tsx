@@ -2,7 +2,7 @@
 
 import type { Message } from '@/lib/types'
 import { FlightCard } from './flight-card'
-import { Bot, User } from 'lucide-react'
+import { Bot, User, Info, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface ChatMessageProps {
@@ -58,11 +58,29 @@ export function ChatMessage({ message }: ChatMessageProps) {
 
         {/* Tarjetas de vuelos */}
         {message.flights && message.flights.length > 0 && (
-          <div className="grid w-full gap-3 sm:grid-cols-1 lg:grid-cols-2">
-            {message.flights.map((flight, index) => (
-              <FlightCard key={flight.id} flight={flight} index={index} />
-            ))}
-          </div>
+          <>
+            {/* Flight source indicator */}
+            {message.flightsMeta && (
+              <div className={cn(
+                "flex items-center gap-2 px-3 py-2 rounded-lg text-sm",
+                message.flightsMeta.isReal 
+                  ? "bg-green-500/10 text-green-700 dark:text-green-300 border border-green-500/20"
+                  : "bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20"
+              )}>
+                {message.flightsMeta.isReal ? (
+                  <CheckCircle2 className="h-4 w-4 shrink-0" />
+                ) : (
+                  <Info className="h-4 w-4 shrink-0" />
+                )}
+                <span>{message.flightsMeta.message || (message.flightsMeta.isReal ? 'Vuelos reales' : 'Vuelos de ejemplo')}</span>
+              </div>
+            )}
+            <div className="grid w-full gap-3 sm:grid-cols-1 lg:grid-cols-2">
+              {message.flights.map((flight, index) => (
+                <FlightCard key={flight.id} flight={flight} index={index} />
+              ))}
+            </div>
+          </>
         )}
 
         {/* Timestamp */}

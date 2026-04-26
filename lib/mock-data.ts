@@ -2,6 +2,9 @@ import type { Airline, Flight } from './types'
 import { popularAirports } from './flights-data'
 import type { UserLocation } from './location-context'
 
+// Note: For real flights, use the searchFlightsForChat action from chat-actions.ts
+// This file provides mock flights as fallback when APIs aren't configured
+
 export const airlines: Airline[] = [
   { id: '1', name: 'Aeromexico', logo: 'AM', rating: 4.2 },
   { id: '2', name: 'LATAM Airlines', logo: 'LA', rating: 4.0 },

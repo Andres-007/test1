@@ -18,6 +18,10 @@ export interface Flight {
   price: number
   stops: number
   class: 'economy' | 'business' | 'first'
+  // Real flight data (when using APIs)
+  deepLink?: string
+  bookingToken?: string
+  isReal?: boolean
 }
 
 export interface Message {
@@ -26,6 +30,12 @@ export interface Message {
   content: string
   flights?: Flight[]
   timestamp: Date
+  // Metadata for flight results
+  flightsMeta?: {
+    isReal: boolean
+    source: string
+    message?: string
+  }
 }
 
 export interface SearchQuery {

@@ -4,7 +4,7 @@ import type { Flight } from '@/lib/types'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Plane, Clock, Star } from 'lucide-react'
+import { Plane, Clock, Star, ExternalLink, CheckCircle } from 'lucide-react'
 
 interface FlightCardProps {
   flight: Flight
@@ -33,11 +33,19 @@ export function FlightCard({ flight, index }: FlightCardProps) {
                 </div>
               </div>
             </div>
-            {flight.stops === 0 && (
-              <Badge variant="secondary" className="bg-accent/20 text-accent-foreground">
-                Directo
-              </Badge>
-            )}
+            <div className="flex items-center gap-2">
+              {flight.isReal && (
+                <Badge variant="outline" className="border-green-500/50 text-green-600 dark:text-green-400 gap-1">
+                  <CheckCircle className="h-3 w-3" />
+                  Vuelo real
+                </Badge>
+              )}
+              {flight.stops === 0 && (
+                <Badge variant="secondary" className="bg-accent/20 text-accent-foreground">
+                  Directo
+                </Badge>
+              )}
+            </div>
           </div>
 
           {/* Ruta del vuelo */}
@@ -78,9 +86,21 @@ export function FlightCard({ flight, index }: FlightCardProps) {
                 ${flight.price.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">USD</span>
               </p>
             </div>
-            <Button className="bg-primary hover:bg-primary/90">
-              Seleccionar
-            </Button>
+            {flight.deepLink ? (
+              <Button 
+                className="bg-primary hover:bg-primary/90 gap-2"
+                asChild
+              >
+                <a href={flight.deepLink} target="_blank" rel="noopener noreferrer">
+                  Reservar
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </Button>
+            ) : (
+              <Button className="bg-primary hover:bg-primary/90">
+                Seleccionar
+              </Button>
+            )}
           </div>
         </div>
       </CardContent>
