@@ -1,38 +1,48 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { searchFlights } from '@/lib/amadeus-service'
+import { searchFlights } from '@/lib/kiwi-api'
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   
-  const origin = searchParams.get('origin')
-  const destination = searchParams.get('destination')
-  const departureDate = searchParams.get('departureDate')
-  const returnDate = searchParams.get('returnDate')
-  const adults = parseInt(searchParams.get('adults') || '1')
-  const travelClass = searchParams.get('travelClass') || 'ECONOMY'
+  const flyFrom = searchParams.get('from')
+  const flyTo = searchParams.get('to')
+  const dateFrom = searchParams.get('dateFrom')
+  const dateTo = searchParams.get('dateTo')
+  const returnFrom = searchParams.get('returnFrom')
+  const returnTo = searchParams.get('returnTo')
+  const adults = searchParams.get('adults')
+  const children = searchParams.get('children')
+  const directOnly = searchParams.get('directOnly')
+  const cabinClass = searchParams.get('cabinClass') as 'M' | 'W' | 'C' | 'F' | null
 
-  if (!origin || !destination || !departureDate) {
+  if (!flyFrom || !flyTo || !dateFrom || !dateTo) {
     return NextResponse.json(
-      { error: 'Missing required parameters: origin, destination, departureDate' },
+      { error: 'Missing required parameters: from, to, dateFrom, dateTo' },
       { status: 400 }
     )
   }
 
   try {
-    const result = await searchFlights(
-      origin,
-      destination,
-      departureDate,
-      returnDate || undefined,
-      adults,
-      travelClass
-    )
+    const results = await searchFlights({
+      flyFrom,
+      flyTo,
+      dateFrom,
+      dateTo,
+      returnFrom: returnFrom || undefined,
+      returnTo: returnTo || undefined,
+      adults: adults ? parseInt(adults) : 1,
+      children: children ? parseInt(children) : 0,
+      directOnly: directOnly === 'true',
+      cabinClass: cabinClass || 'M',
+      currency: 'USD',
+      limit: 30,
+    })
 
-    return NextResponse.json(result)
+    return NextResponse.json(results)
   } catch (error) {
-    console.error('[API] Flight search error:', error)
+    console.error('Flight search error:', error)
     return NextResponse.json(
-      { error: 'Failed to search flights' },
+      { error: error instanceof Error ? error.message : 'Failed to search flights' },
       { status: 500 }
     )
   }
